@@ -34,6 +34,8 @@ open class SwipeCardStack: UIView, SwipeCardDelegate, UIGestureRecognizerDelegat
 
   open var animationOptions = CardStackAnimationOptions()
 
+    open var backgroundCardAlpha: Bool = false
+    
   /// Return `false` if you wish to ignore all horizontal gestures on the card stack.
   ///
   /// You may wish to modify this property if your card stack is embedded in a `UIScrollView`, for example.
@@ -440,6 +442,14 @@ open class SwipeCardStack: UIView, SwipeCardDelegate, UIGestureRecognizerDelegat
     stateManager.delete(indicesAtPositions: positions)
     reloadVisibleCards()
   }
+    
+    func normalizeClamped(_ value: CGFloat) -> CGFloat {
+        let minV: CGFloat = 0.95
+        let maxV: CGFloat = 1.0
+        let result = (value - minV) / (maxV - minV)
+        return max(0.0, min(1.0, result))
+    }
+    
 
   // MARK: - SwipeCardDelegate
 
@@ -454,7 +464,10 @@ open class SwipeCardStack: UIView, SwipeCardDelegate, UIGestureRecognizerDelegat
 
   func cardDidContinueSwipe(_ card: SwipeCard) {
     for (position, backgroundCard) in backgroundCards.enumerated() {
-      backgroundCard.transform = backgroundCardDragTransform(topCard: card, currentPosition: position + 1)
+        backgroundCard.transform = backgroundCardDragTransform(topCard: card, currentPosition: position + 1)
+        if backgroundCardAlpha == true {
+            backgroundCard.alpha = normalizeClamped(backgroundCard.transform.a)
+        }
     }
   }
 
